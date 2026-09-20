@@ -1,0 +1,16 @@
+import {chromium} from 'playwright';
+const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',args:['--use-gl=angle','--use-angle=swiftshader','--enable-webgl','--ignore-gpu-blocklist']});
+const page=await browser.newPage({viewport:{width:1536,height:1024},deviceScaleFactor:1});
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto('http://localhost:4173');await page.waitForTimeout(1200);
+console.log('home',await page.title(),await page.locator('h1').first().textContent());
+await page.getByText('开始游戏', {exact:false}).first().click();await page.waitForTimeout(5000);
+console.log('game',await page.locator('canvas').count(),await page.locator('.player-card').count(),await page.locator('.board-wrap').boundingBox());
+await page.screenshot({path:'test-desktop.png',fullPage:true});
+console.log('errors',errors);
+await page.getByText('掷骰前进').click();await page.waitForTimeout(3200);
+console.log('post-roll',await page.locator('.phase-note').textContent(),await page.locator('.last-dice').textContent());
+await page.screenshot({path:'test-after-roll.png',fullPage:true});
+await page.setViewportSize({width:390,height:844});await page.waitForTimeout(1200);await page.screenshot({path:'test-mobile.png',fullPage:true});
+console.log('mobile',await page.locator('.board-wrap').boundingBox());
+await browser.close();
